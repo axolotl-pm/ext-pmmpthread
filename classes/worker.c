@@ -30,7 +30,11 @@ Worker_method(stack)
 	pmmpthread_zend_object_t* thread = PMMPTHREAD_FETCH;
 	zval *work;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_OBJECT_OF_CLASS(work, pmmpthread_ce_runnable)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -60,7 +64,7 @@ Worker_method(unstack)
 {
 	pmmpthread_zend_object_t* thread = PMMPTHREAD_FETCH;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	if (!PMMPTHREAD_IN_CREATOR(thread)) {
 		zend_throw_exception_ex(spl_ce_RuntimeException,
@@ -78,7 +82,7 @@ Worker_method(getStacked)
 {
 	pmmpthread_zend_object_t* thread = PMMPTHREAD_FETCH;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_LONG(pmmpthread_worker_task_queue_size(thread->worker_data));
 }
@@ -87,7 +91,11 @@ Worker_method(getStacked)
 Worker_method(collector) {
 	zval *collectable;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_OBJECT_OF_CLASS(collectable, pmmpthread_ce_runnable)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -100,7 +108,11 @@ Worker_method(collect)
 	pmmpthread_zend_object_t *thread = PMMPTHREAD_FETCH;
 	pmmpthread_call_t call = PMMPTHREAD_CALL_EMPTY;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 0, 1)
+#endif
 		Z_PARAM_OPTIONAL
 		Z_PARAM_FUNC(call.fci, call.fcc)
 	ZEND_PARSE_PARAMETERS_END();

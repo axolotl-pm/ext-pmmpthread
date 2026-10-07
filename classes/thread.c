@@ -31,7 +31,11 @@ Thread_method(start)
 	pmmpthread_zend_object_t* thread = PMMPTHREAD_FETCH;
 	zend_long options;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_LONG(options)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -44,7 +48,7 @@ Thread_method(isStarted)
 {
 	pmmpthread_object_t* thread = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_check(&thread->monitor, PMMPTHREAD_MONITOR_STARTED));
 } /* }}} */
@@ -55,7 +59,7 @@ Thread_method(isJoined)
 {
 	pmmpthread_object_t* thread = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_check(&thread->monitor, PMMPTHREAD_MONITOR_JOINED));
 } /* }}} */
@@ -66,7 +70,7 @@ Thread_method(join)
 {
 	pmmpthread_zend_object_t* thread = PMMPTHREAD_FETCH;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_join(thread));
 } /* }}} */
@@ -75,7 +79,7 @@ Thread_method(join)
 	Will return the identifier of the referenced Thread */
 Thread_method(getThreadId)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	ZVAL_LONG(return_value, (PMMPTHREAD_FETCH_TS_FROM(Z_OBJ_P(getThis())))->local.id);
 } /* }}} */
@@ -84,7 +88,7 @@ Thread_method(getThreadId)
 	Will return the identifier of the current Thread */
 Thread_method(getCurrentThreadId)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	ZVAL_LONG(return_value, pmmpthread_self());
 } /* }}} */
@@ -93,7 +97,7 @@ Thread_method(getCurrentThreadId)
 	Will return the currently executing Thread */
 Thread_method(getCurrentThread)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	pmmpthread_current_thread(return_value);
 } /* }}} */
@@ -102,7 +106,7 @@ Thread_method(getCurrentThread)
 	Will return the identifier of the thread ( or process ) that created the referenced Thread */
 Thread_method(getCreatorId)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	ZVAL_LONG(return_value, (PMMPTHREAD_FETCH_TS_FROM(Z_OBJ_P(getThis())))->creator.id);
 } /* }}} */
@@ -111,14 +115,14 @@ Thread_method(getCreatorId)
 	Returns a ThreadSafeArray of globals accessible to all threads */
 Thread_method(getSharedGlobals)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_OBJ_COPY(&PMMPTHREAD_ZG(thread_shared_globals)->std);
 } /* }}} */
 
 Thread_method(getRunningCount)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	zend_long count = 0;
 

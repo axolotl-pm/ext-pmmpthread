@@ -52,7 +52,7 @@ struct _pmmpthread_zend_object_t {
 }; /* }}} */
 
 static inline pmmpthread_zend_object_t* _pmmpthread_fetch_object(zend_object *object) {
-	return (pmmpthread_zend_object_t*) ((char*)object - XtOffsetOf(pmmpthread_zend_object_t, std));
+	return (pmmpthread_zend_object_t*) ((char*)object - offsetof(pmmpthread_zend_object_t, std));
 }
 
 /* {{{ fetches the pmmpthread_zend_object_t from a zend_object */

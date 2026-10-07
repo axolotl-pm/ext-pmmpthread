@@ -26,7 +26,7 @@ Runnable_method(isRunning)
 {
 	pmmpthread_object_t* threaded = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_check(&threaded->monitor, PMMPTHREAD_MONITOR_RUNNING));
 } /* }}} */
@@ -37,7 +37,7 @@ Runnable_method(isTerminated)
 {
 	pmmpthread_object_t* threaded = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_check(&threaded->monitor, PMMPTHREAD_MONITOR_ERROR));
 } /* }}} */

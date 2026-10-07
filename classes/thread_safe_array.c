@@ -29,7 +29,11 @@ ThreadSafeArray_method(merge)
 	zval *from;
 	zend_bool overwrite = 1;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 2)
+#endif
 		Z_PARAM_ARRAY_OR_OBJECT(from)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_BOOL(overwrite)
@@ -42,7 +46,7 @@ ThreadSafeArray_method(merge)
 	Will shift the first member from the object */
 ThreadSafeArray_method(shift)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	pmmpthread_store_shift(Z_OBJ_P(getThis()), return_value);
 } /* }}} */
@@ -54,7 +58,11 @@ ThreadSafeArray_method(chunk)
 	zend_long size;
 	zend_bool preserve = 0;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 2)
+#endif
 		Z_PARAM_LONG(size)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_BOOL(preserve)
@@ -67,7 +75,7 @@ ThreadSafeArray_method(chunk)
 	Will pop the last member from the object */
 ThreadSafeArray_method(pop)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	pmmpthread_store_pop(Z_OBJ_P(getThis()), return_value);
 } /* }}} */
@@ -76,7 +84,7 @@ ThreadSafeArray_method(pop)
 	Will return the size of the properties table */
 ThreadSafeArray_method(count)
 {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	ZVAL_LONG(return_value, 0);
 
@@ -90,7 +98,11 @@ ThreadSafeArray_method(fromArray)
 {
 	zval *input;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_ARRAY(input)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -104,7 +116,11 @@ ThreadSafeArray_method(offsetGet)
 {
 	zval* key;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_ZVAL(key)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -118,7 +134,11 @@ ThreadSafeArray_method(offsetSet)
 	zval* key;
 	zval* value;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 2, 2)
+#endif
 		Z_PARAM_ZVAL(key)
 		Z_PARAM_ZVAL(value)
 	ZEND_PARSE_PARAMETERS_END();
@@ -132,7 +152,11 @@ ThreadSafeArray_method(offsetExists)
 {
 	zval* key;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_ZVAL(key)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -145,7 +169,11 @@ ThreadSafeArray_method(offsetUnset)
 {
 	zval* key;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_ZVAL(key)
 	ZEND_PARSE_PARAMETERS_END();
 

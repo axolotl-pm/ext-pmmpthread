@@ -29,7 +29,11 @@ Pool_method(__construct)
 	zend_class_entry *clazz = NULL;
 	zval *ctor = NULL;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 3)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 3)
+#endif
 		Z_PARAM_LONG(size)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_CLASS(clazz)
@@ -59,7 +63,11 @@ Pool_method(resize) {
 	zval *workers = NULL;
 	zval *size = NULL;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_LONG(newsize)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -101,7 +109,11 @@ Pool_method(submit) {
 
 	zend_class_entry *ce = NULL;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, 1)
+#endif
 		Z_PARAM_OBJECT_OF_CLASS(task, pmmpthread_ce_runnable)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -199,7 +211,11 @@ Pool_method(submitTo) {
 	zend_long worker = 0;
 	zval *selected = NULL;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 2, 2)
+#endif
 		Z_PARAM_LONG(worker)
 		Z_PARAM_OBJECT_OF_CLASS(task, pmmpthread_ce_runnable)
 	ZEND_PARSE_PARAMETERS_END();
@@ -231,7 +247,11 @@ Pool_method(collect) {
 	     *worker = NULL;
 	zend_long collectable = 0;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 0, 1)
+#endif
 		Z_PARAM_OPTIONAL
 		Z_PARAM_FUNC(call.fci, call.fcc)
 	ZEND_PARSE_PARAMETERS_END();
@@ -290,7 +310,7 @@ static inline void pmmpthread_pool_shutdown(zval *pool) {
 /* {{{ proto void Pool::shutdown(void)
 	Will cause all the workers to finish executing their stacks and shutdown */
 Pool_method(shutdown) {
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	pmmpthread_pool_shutdown(getThis());
 } /* }}} */

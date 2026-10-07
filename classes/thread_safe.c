@@ -29,7 +29,11 @@ ThreadSafe_method(wait)
 	pmmpthread_object_t* threaded = PMMPTHREAD_FETCH_TS;
 	zend_long timeout = 0L;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(0, 1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 0, 1)
+#endif
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(timeout)
 	ZEND_PARSE_PARAMETERS_END();
@@ -44,7 +48,7 @@ ThreadSafe_method(notify)
 {
 	pmmpthread_object_t* threaded = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_notify(&threaded->monitor) == SUCCESS);
 } /* }}} */
@@ -56,7 +60,7 @@ ThreadSafe_method(notifyOne)
 {
 	pmmpthread_object_t* threaded = PMMPTHREAD_FETCH_TS;
 
-	zend_parse_parameters_none_throw();
+	zend_parse_parameters_none();
 
 	RETURN_BOOL(pmmpthread_monitor_notify_one(&threaded->monitor) == SUCCESS);
 } /* }}} */
@@ -71,7 +75,11 @@ ThreadSafe_method(synchronized)
 	zval *argv = NULL;
 	pmmpthread_object_t* threaded= PMMPTHREAD_FETCH_TS;
 
+#if PHP_VERSION_ID >= 80600
+	ZEND_PARSE_PARAMETERS_START(1, -1)
+#else
 	ZEND_PARSE_PARAMETERS_START_EX(ZEND_PARSE_PARAMS_THROW, 1, -1)
+#endif
 		Z_PARAM_FUNC(call.fci, call.fcc)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_VARIADIC('+', argv, argc)

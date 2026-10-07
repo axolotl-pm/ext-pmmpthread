@@ -160,7 +160,7 @@ PHP_MINIT_FUNCTION(pmmpthread)
 
 	memcpy(&pmmpthread_ts_ce_handlers, zend_handlers, sizeof(zend_object_handlers));
 
-	pmmpthread_ts_ce_handlers.offset = XtOffsetOf(pmmpthread_zend_object_t, std);
+	pmmpthread_ts_ce_handlers.offset = offsetof(pmmpthread_zend_object_t, std);
 
 	pmmpthread_ts_ce_handlers.free_obj = pmmpthread_base_free;
 	pmmpthread_ts_ce_handlers.dtor_obj = pmmpthread_base_dtor;
