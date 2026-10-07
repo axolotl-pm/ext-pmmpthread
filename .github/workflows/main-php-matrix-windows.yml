@@ -242,7 +242,7 @@ jobs:
         run: |
           $env:REPORT_EXIT_STATUS=1
 
-          .\php.exe .\SDK\script\run-tests.php -P -q --show-diff --show-slow 30000 -n -c .\php.ini ${{ github.workspace }}\tests
+          .\php.exe .\SDK\script\run-tests.php -P -j1 -q --show-diff --show-slow 30000 -n -c .\php.ini ${{ github.workspace }}\tests
 
       - name: Upload test results
         if: always()
