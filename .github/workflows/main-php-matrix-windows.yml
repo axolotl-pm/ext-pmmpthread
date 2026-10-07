@@ -16,16 +16,16 @@ on:
         type: string
         default: 'x64'
       vs-crt:
-        description: 'Visual Studio CRT for build (vc15=2017, vs16=2019, vs17=2022)'
+        description: 'Visual Studio CRT for build (vc15=2017, vs16=2019, vs17=2022, vs18=2026)'
         type: string
         required: true
       runs-on:
         description: 'GitHub runner'
         type: string
-        default: 'windows-2022'
+        default: 'windows-2025-vs2026'
 
 env:
-  PHP_SDK_BINARY_TOOLS_VER: 2.4.0
+  PHP_SDK_BINARY_TOOLS_VER: 2.8.4
   PTHREAD_W32_VER: 3.0.0
 
 jobs:
@@ -47,6 +47,8 @@ jobs:
           $vsToolsetFlag = ""
           if ("${{ inputs.vs-crt }}" -eq "vs16") {
               $vsToolsetFlag = "-s 14.29"
+          } elseif ("${{ inputs.vs-crt }}" -eq "vs17") {
+              $vsToolsetFlag = "-s 14.44"
           }
           echo "command=`"${{ github.workspace }}\php-sdk\phpsdk-${{ inputs.vs-crt }}-${{ inputs.vs-arch }}.bat`" $vsToolsetFlag -t task.bat" >> $env:GITHUB_OUTPUT
 
@@ -66,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: php/php-sdk-binary-tools
-          ref: php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }} #TODO: probably should update this, but haven't tested newer versions
+          ref: php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }}
           path: php-sdk
 
       - name: Checkout PHP
@@ -181,6 +183,8 @@ jobs:
           $vsToolsetFlag = ""
           if ("${{ inputs.vs-crt }}" -eq "vs16") {
               $vsToolsetFlag = "-s 14.29"
+          } elseif ("${{ inputs.vs-crt }}" -eq "vs17") {
+              $vsToolsetFlag = "-s 14.44"
           }
           echo "command=`"${{ github.workspace }}\php-sdk\phpsdk-${{ inputs.vs-crt }}-${{ inputs.vs-arch }}.bat`" $vsToolsetFlag -t task.bat" >> $env:GITHUB_OUTPUT
 
