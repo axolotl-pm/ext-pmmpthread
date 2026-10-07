@@ -22,6 +22,8 @@ jobs:
             opcache-shared: true
           - php: 8.5.0
             opcache-shared: false
+          - php: 8.6.0RC3
+            opcache-shared: false
 
     uses: ./.github/workflows/main-php-matrix.yml
     with:
@@ -48,6 +50,9 @@ jobs:
             opcache-shared: true
           - php: 8.5.0
             vs-crt: vs17
+            opcache-shared: false
+          - php: 8.6.0RC3
+            vs-crt: vs18
             opcache-shared: false
 
     uses: ./.github/workflows/main-php-matrix-windows.yml
