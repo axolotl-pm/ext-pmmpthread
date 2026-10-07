@@ -39,7 +39,7 @@ jobs:
       - name: Set PHP build cache key
         id: cache-key
         run: |
-          echo "key=php-debug-${{ inputs.php }}-${{ inputs.vs-arch }}-${{ inputs.vs-crt }}-${{ inputs.runs-on }}-php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }}" >> $env:GITHUB_OUTPUT
+          echo "key=php-debug-${{ inputs.php }}-${{ inputs.vs-arch }}-${{ inputs.vs-crt }}-${{ inputs.runs-on }}-php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }}-pdb" >> $env:GITHUB_OUTPUT
 
       - name: Set php-sdk task command
         id: php-sdk-command
@@ -151,6 +151,12 @@ jobs:
         run: |
           cp "${{ github.workspace }}\deps\bin\pthreadVC*.*" .\
 
+      - name: Add PHP debug symbols to build result
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: bin
+        run: |
+          cp "${{ github.workspace }}\php-src\x64\Debug_TS\*.pdb" .\
+
   test-extension:
     name: Test (OPcache ${{ matrix.opcache }})
     runs-on: ${{ inputs.runs-on }}
@@ -175,7 +181,7 @@ jobs:
             bin
             php-sdk
             deps
-          key: php-debug-${{ inputs.php }}-${{ inputs.vs-arch }}-${{ inputs.vs-crt }}-${{ inputs.runs-on }}-php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }}
+          key: php-debug-${{ inputs.php }}-${{ inputs.vs-arch }}-${{ inputs.vs-crt }}-${{ inputs.runs-on }}-php-sdk-${{ env.PHP_SDK_BINARY_TOOLS_VER }}-pdb
 
       - name: Set php-sdk task command
         id: php-sdk-command
@@ -236,13 +242,21 @@ jobs:
             echo "OPcache is not enabled for this run"
           } 
 
+      - name: Enable crash dumps
+        run: |
+          $key = "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\php.exe"
+          New-Item -Path $key -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpFolder -PropertyType ExpandString -Value "${{ github.workspace }}\dumps" -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpCount -PropertyType DWord -Value 3 -Force | Out-Null
+
       - name: Run test suite
         working-directory: bin
         timeout-minutes: 30
         run: |
           $env:REPORT_EXIT_STATUS=1
 
-          .\php.exe .\SDK\script\run-tests.php -P -j1 -q --show-diff --show-slow 30000 -n -c .\php.ini ${{ github.workspace }}\tests
+          .\php.exe .\SDK\script\run-tests.php -P -j1 -q --show-diff --show-slow 30000 -n -c .\php.ini -w "${{ github.workspace }}\failed-tests.txt" ${{ github.workspace }}\tests
 
       - name: Upload test results
         if: always()
@@ -254,3 +268,37 @@ jobs:
             ${{ github.workspace }}/tests/*.diff
             ${{ github.workspace }}/tests/*.mem
           if-no-files-found: ignore
+
+      # run-tests.php starts tests with SEM_NOGPFAULTERRORBOX, which bypasses Windows Error Reporting dumps
+      - name: Rerun failed tests outside run-tests
+        if: failure()
+        working-directory: bin
+        run: |
+          $failedList = "${{ github.workspace }}\failed-tests.txt"
+          if (-not (Test-Path $failedList)) { exit 0 }
+          foreach ($phpt in Get-Content $failedList) {
+            if (Select-String -Path $phpt -Pattern '^--XFAIL--$' -Quiet) { continue }
+            $script = [IO.Path]::ChangeExtension($phpt, '.php')
+            if (-not (Test-Path $script)) { continue }
+            for ($attempt = 1; $attempt -le 5; $attempt++) {
+              $proc = Start-Process -FilePath .\php.exe -ArgumentList '-n', '-c', 'php.ini', $script -Wait -PassThru -NoNewWindow -RedirectStandardOutput "$script.rerun.out" -RedirectStandardError "$script.rerun.err"
+              if ($proc.ExitCode -eq -1073741819) {
+                echo "$script crashed on attempt $attempt"
+                break
+              }
+            }
+          }
+          Get-ChildItem "${{ github.workspace }}\dumps" -ErrorAction SilentlyContinue
+
+      - name: Upload crash dumps
+        if: failure() && hashFiles('dumps/*.dmp') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-dumps-${{ inputs.php }}-opcache-${{ matrix.opcache }}-${{ inputs.runs-on }}
+          path: |
+            ${{ github.workspace }}/dumps/*.dmp
+            ${{ github.workspace }}/bin/*.exe
+            ${{ github.workspace }}/bin/*.dll
+            ${{ github.workspace }}/bin/*.pdb
+            ${{ github.workspace }}/bin/ext/*.dll
+            ${{ github.workspace }}/x64/Debug_TS/php_pmmpthread.pdb
