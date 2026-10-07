@@ -716,9 +716,10 @@ zend_result pmmpthread_copy_closure(const pmmpthread_ident_t* owner, zend_closur
 	zend_string* zname;
 	zend_function* func_def = NULL;
 	zval this_zv;
+	zend_object* this_obj = PMMPTHREAD_CLOSURE_THIS(closure_obj);
 
-	if (IS_THREADSAFE_CLASS_INSTANCE(&closure_obj->this_ptr)) {
-		if (!pmmpthread_object_connect(PMMPTHREAD_FETCH_FROM(Z_OBJ(closure_obj->this_ptr)), &this_zv)) {
+	if (this_obj != NULL && IS_THREADSAFE_CLASS(this_obj->ce)) {
+		if (!pmmpthread_object_connect(PMMPTHREAD_FETCH_FROM(this_obj), &this_zv)) {
 			if (!silent) {
 				zend_throw_exception_ex(
 					pmmpthread_ce_connection_exception, 0,
@@ -783,7 +784,7 @@ zend_result pmmpthread_copy_closure(const pmmpthread_ident_t* owner, zend_closur
 			func_def,
 			pmmpthread_prepare_single_class(owner, closure_obj->func.common.scope),
 			pmmpthread_prepare_single_class(owner, closure_obj->called_scope),
-			&this_zv
+			PMMPTHREAD_CLOSURE_THIS_ARG(&this_zv)
 		);
 	} else {
 		HashTable* static_variables = NULL;
@@ -822,7 +823,7 @@ zend_result pmmpthread_copy_closure(const pmmpthread_ident_t* owner, zend_closur
 			func_def,
 			pmmpthread_prepare_single_class(owner, closure_obj->func.common.scope),
 			pmmpthread_prepare_single_class(owner, closure_obj->called_scope),
-			&this_zv
+			PMMPTHREAD_CLOSURE_THIS_ARG(&this_zv)
 		);
 		if (static_variables != NULL) {
 			zend_closure* new_closure = (zend_closure*)Z_OBJ_P(pzval);

@@ -888,10 +888,8 @@ void pmmpthread_store_persist_local_properties(zend_object* object) {
 } /* }}} */
 
 static zend_bool pmmpthread_closure_thread_safe(zend_closure* closure) {
-	if (
-		!Z_ISUNDEF(closure->this_ptr) &&
-		!(Z_TYPE(closure->this_ptr) == IS_OBJECT && instanceof_function(Z_OBJCE(closure->this_ptr), pmmpthread_ce_thread_safe))
-	) {
+	zend_object* this_obj = PMMPTHREAD_CLOSURE_THIS(closure);
+	if (this_obj != NULL && !instanceof_function(this_obj->ce, pmmpthread_ce_thread_safe)) {
 		//closures must be unbound or static when assigned, because they won't be bound when restored onto another thread
 		//however, this is OK for thread-safe objects which we can copy
 		zend_throw_error(
@@ -973,8 +971,9 @@ static pmmpthread_storage* pmmpthread_store_create(pmmpthread_ident_t* source, z
 				//since we aren't copying this to persistent memory, a fault is going to
 				//happen if it's dereferenced after the original closure is destroyed
 				//(for what it's worth, this was always a problem.)
-				if (Z_TYPE(closure->this_ptr) == IS_OBJECT) {
-					pmmpthread_zend_object_t* this_object = PMMPTHREAD_FETCH_FROM(Z_OBJ(closure->this_ptr));
+				zend_object* this_obj = PMMPTHREAD_CLOSURE_THIS(closure);
+				if (this_obj != NULL) {
+					pmmpthread_zend_object_t* this_object = PMMPTHREAD_FETCH_FROM(this_obj);
 					storage->this_obj = this_object;
 				} else {
 					storage->this_obj = NULL;

@@ -173,10 +173,22 @@ typedef struct _pmmpthread_call_t {
 typedef struct _zend_closure {
 	zend_object       std;
 	zend_function     func;
+#if PHP_VERSION_ID >= 80600
+	zend_object*      this_ptr;
+#else
 	zval              this_ptr;
+#endif
 	zend_class_entry* called_scope;
 	zif_handler       orig_internal_handler;
 } zend_closure;
+
+#if PHP_VERSION_ID >= 80600
+#define PMMPTHREAD_CLOSURE_THIS(closure) ((closure)->this_ptr)
+#define PMMPTHREAD_CLOSURE_THIS_ARG(zv) (Z_TYPE_P(zv) == IS_OBJECT ? Z_OBJ_P(zv) : NULL)
+#else
+#define PMMPTHREAD_CLOSURE_THIS(closure) (Z_TYPE((closure)->this_ptr) == IS_OBJECT ? Z_OBJ((closure)->this_ptr) : NULL)
+#define PMMPTHREAD_CLOSURE_THIS_ARG(zv) (zv)
+#endif
 
 
 #include <src/monitor.h>
