@@ -1,7 +1,7 @@
 --TEST--
-Test that PHP 8.4 property read/write hooks work as expected on copied classes and ThreadSafe classes
+Test that PHP 8.4 property read/write hooks work on copied classes and ThreadSafe classes (PHP 8.6+ error messages)
 --SKIPIF--
-<?php if(PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80600) die("skip PHP 8.4 and 8.5 only"); ?>
+<?php if(PHP_VERSION_ID < 80600) die("skip PHP 8.6+ only"); ?>
 --FILE--
 <?php
 
@@ -174,9 +174,9 @@ object(%s)#%d (2) {
 }
 int(1)
 bool(true)
-Property %s::$virtualOnlyGet is read-only
-Property %s::$virtualOnlySet is write-only
-Property %s::$virtualOnlySet is write-only
+Cannot write to get-only virtual property %s::$virtualOnlyGet
+Cannot read from set-only virtual property %s::$virtualOnlySet
+Cannot read from set-only virtual property %s::$virtualOnlySet
 int(5)
 bool(true)
 int(7)
@@ -204,9 +204,9 @@ object(%s)#%d (2) {
 }
 int(1)
 bool(true)
-Property %s::$virtualOnlyGet is read-only
-Property %s::$virtualOnlySet is write-only
-Property %s::$virtualOnlySet is write-only
+Cannot write to get-only virtual property %s::$virtualOnlyGet
+Cannot read from set-only virtual property %s::$virtualOnlySet
+Cannot read from set-only virtual property %s::$virtualOnlySet
 int(5)
 bool(true)
 int(7)
@@ -236,9 +236,9 @@ object(%s)#%d (2) {
 }
 int(1)
 bool(true)
-Property %s::$virtualOnlyGet is read-only
-Property %s::$virtualOnlySet is write-only
-Property %s::$virtualOnlySet is write-only
+Cannot write to get-only virtual property %s::$virtualOnlyGet
+Cannot read from set-only virtual property %s::$virtualOnlySet
+Cannot read from set-only virtual property %s::$virtualOnlySet
 int(5)
 bool(true)
 int(7)
@@ -266,9 +266,9 @@ object(%s)#%d (2) {
 }
 int(1)
 bool(true)
-Property %s::$virtualOnlyGet is read-only
-Property %s::$virtualOnlySet is write-only
-Property %s::$virtualOnlySet is write-only
+Cannot write to get-only virtual property %s::$virtualOnlyGet
+Cannot read from set-only virtual property %s::$virtualOnlySet
+Cannot read from set-only virtual property %s::$virtualOnlySet
 int(5)
 bool(true)
 int(7)

@@ -25,6 +25,15 @@
 #define IN_UNSET    (1<<2)
 #define IN_ISSET    (1<<3)
 
+// PHP 8.6: php-src GH-19845 reworded virtual property hook errors to avoid confusion with readonly
+#if PHP_VERSION_ID >= 80600
+#define PMMPTHREAD_VIRTUAL_WRITE_ONLY_MESSAGE "Cannot read from set-only virtual property %s::$%s"
+#define PMMPTHREAD_VIRTUAL_READ_ONLY_MESSAGE "Cannot write to get-only virtual property %s::$%s"
+#else
+#define PMMPTHREAD_VIRTUAL_WRITE_ONLY_MESSAGE "Property %s::$%s is write-only"
+#define PMMPTHREAD_VIRTUAL_READ_ONLY_MESSAGE "Property %s::$%s is read-only"
+#endif
+
 typedef uint32_t zend_guard;
 
 /* {{{ */
@@ -179,7 +188,7 @@ zval* pmmpthread_read_property(PMMPTHREAD_READ_PROPERTY_PASSTHRU_D) {
 				zend_function* get = info->hooks[ZEND_PROPERTY_HOOK_GET];
 				if (!get) {
 					if (info->flags & ZEND_ACC_VIRTUAL) {
-						zend_throw_error(NULL, "Property %s::$%s is write-only",
+						zend_throw_error(NULL, PMMPTHREAD_VIRTUAL_WRITE_ONLY_MESSAGE,
 							ZSTR_VAL(object->ce->name), ZSTR_VAL(member));
 						return &EG(uninitialized_zval);
 					}
@@ -284,7 +293,7 @@ zval* pmmpthread_write_property(PMMPTHREAD_WRITE_PROPERTY_PASSTHRU_D) {
 
 				if (!set) {
 					if (info->flags & ZEND_ACC_VIRTUAL) {
-						zend_throw_error(NULL, "Property %s::$%s is read-only", ZSTR_VAL(object->ce->name), ZSTR_VAL(member));
+						zend_throw_error(NULL, PMMPTHREAD_VIRTUAL_READ_ONLY_MESSAGE, ZSTR_VAL(object->ce->name), ZSTR_VAL(member));
 						value = &EG(error_zval);
 						write_store = false;
 					}
@@ -392,7 +401,7 @@ int pmmpthread_has_property(PMMPTHREAD_HAS_PROPERTY_PASSTHRU_D) {
 						read_store = false;
 					} else if (get == NULL) {
 						if (info->flags & ZEND_ACC_VIRTUAL) {
-							zend_throw_error(NULL, "Property %s::$%s is write-only",
+							zend_throw_error(NULL, PMMPTHREAD_VIRTUAL_WRITE_ONLY_MESSAGE,
 								ZSTR_VAL(object->ce->name), ZSTR_VAL(member));
 							isset = 0;
 							read_store = false;
