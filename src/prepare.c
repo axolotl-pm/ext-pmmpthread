@@ -36,7 +36,14 @@ static void pmmpthread_preparation_copy_trait_method_reference(zend_trait_method
 /* {{{ Initializes an enum case object.
  * Adapted from zend_enum_new(), which is sadly not exported. */
 zend_object* prepare_enum_constant(const pmmpthread_ident_t* source, zend_class_entry* prepared, zend_object* enum_obj) {
+#if PHP_VERSION_ID >= 80600
+	zend_enum_obj* intern = zend_object_alloc(sizeof(zend_enum_obj), prepared);
+	zend_object_std_init(&intern->std, prepared);
+	intern->case_id = zend_enum_obj_from_obj(enum_obj)->case_id;
+	zend_object* new_obj = &intern->std;
+#else
 	zend_object* new_obj = zend_objects_new(prepared);
+#endif
 
 	pmmpthread_copy_zval(source, OBJ_PROP_NUM(new_obj, 0), zend_enum_fetch_case_name(enum_obj));
 	if (prepared->enum_backing_type != IS_UNDEF) {
@@ -334,6 +341,9 @@ static void prepare_class_handlers(zend_class_entry *candidate, zend_class_entry
 	prepared->get_iterator = candidate->get_iterator;
 	prepared->interface_gets_implemented = candidate->interface_gets_implemented;
 	prepared->get_static_method = candidate->get_static_method;
+#if PHP_VERSION_ID >= 80300
+	prepared->default_object_handlers = candidate->default_object_handlers;
+#endif
 } /* }}} */
 
 static void prepare_class_interceptors(zend_class_entry *candidate, zend_class_entry *prepared) {
